@@ -5,6 +5,8 @@ from keras.layers import Convolution2D
 from keras.layers import MaxPooling2D
 from keras.layers import Flatten
 from keras.layers import Dense
+from keras.callbacks import EarlyStopping
+from keras.callbacks import ModelCheckpoint
 
 #initializing:
 classifier = Sequential()
@@ -55,12 +57,17 @@ training_set = train_datagen.flow_from_directory('plates/training_set',
 
 test_set = test_datagen.flow_from_directory('plates/test_set',
 											 target_size=(256, 256),
-											 batch_size=32,
+											 batch_size=16,
 											 class_mode='categorical')
 
+# callbacks:
+es = EarlyStopping(monitor='val_loss', mode='min', baseline=1)
+mc = ModelCheckpoint('best_model.h5', monitor='val_loss', mode='min', save_best_only=True, verbose = 1)
 classifier.fit_generator(
 			        training_set,
-			        epochs=50,
+                    steps_per_epoch = 88,
+			        epochs=200,
+                    callbacks=[es, mc],
 			        validation_data=test_set,
 			        validation_steps=2000)
 
